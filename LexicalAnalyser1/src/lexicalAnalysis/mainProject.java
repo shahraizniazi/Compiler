@@ -14,21 +14,16 @@ import java.io.InputStreamReader;
 public class mainProject {
 	public static void main(String[] args) throws IOException {
 		
-		Parser pr = new Parser();
-		pr.ParsingInitial();
-		
-		/*
-		Scanner scanner = new Scanner(new FileReader("src/testFile.txt"));
-
-		Token token;
 	
 		
-		do {
-			token = scanner.next();
-			System.out.println(token);
-		} while (token.type != TokenType.EOF);
+		
+		Scanner scanner = new Scanner(new FileReader("src/testFile.txt"));
+		RecursiveParser parser = new RecursiveParser(scanner);
+		
+		Program program = parser.parseProgram();
+		program.display("");
+		
+		
+}
 
-		scanner.close();
-		*/
-	}
 }
