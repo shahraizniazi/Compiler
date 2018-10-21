@@ -34,6 +34,24 @@ public class Scanner {
 		keywords.put("end", TokenType.END);
 		keywords.put("div", TokenType.DIV);
 		keywords.put("mod", TokenType.MOD);
+		keywords.put("var", TokenType.VAR);
+		keywords.put("int", TokenType.INT);
+		keywords.put("bool", TokenType.BOOL);
+		keywords.put("void", TokenType.VOID);
+		keywords.put("fun", TokenType.FUN);
+		keywords.put("if", TokenType.IF);
+		keywords.put("then", TokenType.THEN);
+		keywords.put("else", TokenType.ELSE);
+		keywords.put("while", TokenType.WHILE);
+		keywords.put("do", TokenType.DO);
+		keywords.put("input", TokenType.INPUT);
+		keywords.put("and", TokenType.AND);
+		keywords.put("or", TokenType.OR);
+		keywords.put("not", TokenType.NOT);
+		keywords.put("true", TokenType.TRUE);
+		keywords.put("false", TokenType.FALSE);
+		keywords.put("let", TokenType.LET);
+		
 
 	    opsAndPunct = new HashMap<>();
 		opsAndPunct.put("+", TokenType.PLUS);
@@ -42,6 +60,17 @@ public class Scanner {
 		opsAndPunct.put("=", TokenType.ASSIGN);
 		opsAndPunct.put(";", TokenType.SEMI);
 		opsAndPunct.put(".", TokenType.PERIOD);
+		opsAndPunct.put("==", TokenType.EQUAL);
+		opsAndPunct.put("<>", TokenType.NOTEQUAL);
+		opsAndPunct.put("<=", TokenType.LESSEQUAL);
+		opsAndPunct.put(">=", TokenType.GREATEREQUAL);
+		opsAndPunct.put("<", TokenType.LESS);
+		opsAndPunct.put(">", TokenType.GREATER);
+		opsAndPunct.put(":", TokenType.COLON);
+		opsAndPunct.put("(", TokenType.LPAREN);
+		opsAndPunct.put(")", TokenType.RPAREN);
+		opsAndPunct.put(",", TokenType.COMMA);
+		
 	}
 
 	/**
@@ -84,13 +113,24 @@ public class Scanner {
 					lexeme.append(source.current);
 					source.advance();
 					state = 3;
-				} else if ("+-*=;.".contains(String.valueOf(source.current))) {
+					
+				}else if (source.current=='"') {
+						// Token is String
+						startLine = source.line;
+						startColumn = source.column;
+						source.advance();
+						state = 31;
+				
+				} else if ("+-*=;.:(),<=>".contains(String.valueOf(source.current))) {
 					// Token is operator or punctuation
 					startLine = source.line;
 					startColumn = source.column;
 					lexeme.append(source.current);
+					if(source.current=='<') {state =41;}
+					else if(source.current =='=') {state=42;}
+					else if(source.current=='>') {state =43;}
+					else {state=4;}
 					source.advance();
-					state = 4;
 				} else if (source.current == '/') {
 					// Start of a comment; skip to end
 					source.advance();
@@ -131,11 +171,82 @@ public class Scanner {
 					source.advance();
 				}
 				break;
-
+				
+			case 31: //string literal
+				
+				if (source.current == '"')
+					state = 32;
+				else if (source.current == '\n')
+					System.err.println("ERROR: No ending for string literal");
+					
+				else
+					lexeme.append(source.current);
+					source.advance();
+				break;
+				
+			case 32:
+				
+				if (source.current == '"') {
+					state = 31;
+					
+					lexeme.append('"');
+					source.advance();
+				} else 
+					return new Token(startLine, startColumn, TokenType.STRING, lexeme.toString());
+				
+				break;
+				
+			
 			case 4: // Token is an operator or punctuation
 				String lex = lexeme.toString();
 				return new Token(startLine, startColumn, opsAndPunct.get(lex), null);
-
+				
+			case 41:
+				if(source.current=='=') {
+					lexeme.append(source.current);
+					source.advance();
+					String lex1 = lexeme.toString();
+					return new Token(startLine, startColumn, opsAndPunct.get(lex1), null);
+					
+				}
+				else if(source.current=='>') {
+					lexeme.append(source.current);
+					source.advance();
+					String lex2 = lexeme.toString();
+					return new Token(startLine, startColumn, opsAndPunct.get(lex2), null);
+				}
+				else {
+					
+					String lex3 = lexeme.toString();
+					return new Token(startLine, startColumn, opsAndPunct.get(lex3), null);
+				}
+				
+			case 42:
+				if(source.current=='=') {
+					lexeme.append(source.current);
+					source.advance();
+					String lex1 = lexeme.toString();
+					return new Token(startLine, startColumn, opsAndPunct.get(lex1), null);
+					}
+				else {
+					String lex1 = lexeme.toString();
+					return new Token(startLine, startColumn, opsAndPunct.get(lex1), null);
+				}
+			case 43:
+				if(source.current=='=') {
+					lexeme.append(source.current);
+					source.advance();
+					String lex1 = lexeme.toString();
+					return new Token(startLine, startColumn, opsAndPunct.get(lex1), null);
+					
+				}
+				
+				else {
+					
+					String lex3 = lexeme.toString();
+					return new Token(startLine, startColumn, opsAndPunct.get(lex3), null);
+				}
+				
 			case 5: // Skip the second character of a comment
 				if (source.atEOF || (source.current != '*' && source.current != '/')) {
 					// Illegal start of comment; print error message but leave current character

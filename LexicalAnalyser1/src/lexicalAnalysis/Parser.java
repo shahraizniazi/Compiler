@@ -103,8 +103,8 @@ public class Parser {
 				
 				
 				if(token.type==TokenType.PRINT) { 
-					if(state==12) {System.err.println("ERROR: Put a valid ID or a Num before the Print"); return;}
 					if(state!=5) {System.err.println("ERROR: Missing SEMI");return;}
+					if(state==12) {System.err.println("ERROR: Put a valid ID or a Num before the Print"); return;}
 					state=6;
 					while(stack.size()!=0) {
 						StatementTokens.add(stack.get(stack.size()-1));
@@ -131,7 +131,7 @@ public class Parser {
 					if(token.type==TokenType.NUM) {StatementTokens.add(token.lexeme); System.out.println(token.lexeme); state =11;}
 					else {
 					if(map.containsKey(token.lexeme)) {StatementTokens.add(map.get(token.lexeme)); System.out.println(map.get(token.lexeme)); state =11;}
-					else {System.err.println("Variable " + token.lexeme + " not defined");}}}
+					else {System.err.println("Variable " + token.lexeme + " not defined"); return;}}}
 				
 				
 				
